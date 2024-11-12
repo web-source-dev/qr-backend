@@ -13,7 +13,7 @@ const allowedOrigins = ['https://qr-frontend-beta.vercel.app/']; // Add your fro
 app.use(cors({
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+allowedHeaders: ['Content-Type', 'Authorization', 'multipart/form-data']
 }));
 
 // Middleware for parsing JSON requests
