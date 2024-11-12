@@ -9,17 +9,26 @@ require('dotenv').config();
 const app = express();
 
 // Configure CORS options
-const corsOptions = {
-  origin: 'https://qr-frontend-beta.vercel.app', // Allow frontend URL
-  methods: ['GET', 'POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-};
+const allowedOrigins = ['https://qr-frontend-beta.vercel.app'];
 
-app.use(cors(corsOptions));
+// Enable CORS with the specific origin allowed
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests from your frontend domain or from no origin (null)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST'], // Add other methods if needed
+  allowedHeaders: ['Content-Type', 'Authorization'], // Specify any headers if needed
+}));
+
 
 // Middleware for parsing JSON requests
-app.use(express.json({ limit: '10mb' }));
-app.use(bodyParser.json({ limit: '10mb' }));
+app.use(express.json());
+app.use(bodyParser.json());
 
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
