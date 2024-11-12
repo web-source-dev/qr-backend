@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const path = require('path');
 require('dotenv').config();
 
@@ -21,14 +20,13 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST'], // Add other methods if needed
+  methods: ['GET', 'POST','PUT','DELETE','OPTIONS'], // Add other methods if needed
   allowedHeaders: ['Content-Type', 'Authorization'], // Specify any headers if needed
 }));
 
 
 // Middleware for parsing JSON requests
 app.use(express.json());
-app.use(bodyParser.json());
 
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
