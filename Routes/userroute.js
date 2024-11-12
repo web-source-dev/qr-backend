@@ -1,17 +1,27 @@
-// routes/userRoutes.js
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
 const Data = require('../models/data');  // Assuming this model is for QR code data
 const router = express.Router();
 
+// Set up multer storage configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, '../uploads/');  // Save uploaded files in the 'uploads' directory
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));  // Use timestamp as filename
+  }
+});
 
-// POST route for storing QR data and creating QR code
-router.post('/qrdata', async (req, res) => {
+const upload = multer({ storage: storage });
+
+// POST route for storing QR data and image upload
+router.post('/qrdata', upload.single('profileImage'), async (req, res) => {
   const { name, email, work_email, organization, phone, address, youtube_url, facebook_url, linkden_url, twitter_url } = req.body;
+  const profileImage = req.file ? req.file.path : null;  // Save file path to DB
 
   try {
-    console.log('Received data:', req.body);
-    console.log('File info:', req.file);
-    
     const qrdata = new Data({
       name,
       email,
@@ -23,6 +33,7 @@ router.post('/qrdata', async (req, res) => {
       facebook_url,
       linkden_url,
       twitter_url,
+      profileImage,  // Save the uploaded image path
     });
 
     await qrdata.save();
@@ -30,7 +41,7 @@ router.post('/qrdata', async (req, res) => {
     res.status(201).json({
       message: 'Submitted successfully',
       qrdata: qrdata,
-      userId: qrdata._id
+      userId: qrdata._id,
     });
   } catch (error) {
     console.error('Error while submitting:', error);
