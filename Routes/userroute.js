@@ -7,7 +7,7 @@ const router = express.Router();
 // Set up multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, '../uploads/');  // Save uploaded files in the 'uploads' directory
+    cb(null, 'uploads/');  // Make sure this directory exists on the server
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));  // Use timestamp as filename
@@ -55,7 +55,7 @@ router.get('/users', async (req, res) => {
     res.status(200).json(users); // Send the users as a JSON response
   } catch (error) {
     console.error('Error fetching users:', error);
-    res.status(500).json({ message: 'Error fetching users' });
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
   }
 });
 
