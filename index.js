@@ -12,7 +12,13 @@ const app = express();
 app.use(bodyParser.json())
 // Middleware
 app.use(express.json());  // Parse incoming JSON requests
-app.use(cors());
+const corsOptions = {
+  origin: 'https://qr-frontend-beta.vercel.app', // Allow only this domain
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers (adjust based on your needs)
+};
+
+app.use(cors(corsOptions));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
