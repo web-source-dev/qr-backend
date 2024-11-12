@@ -33,11 +33,14 @@ router.post('/qrdata', upload.single('profileImage'), async (req, res) => {
   const { name, email, work_email, organization, phone, address, youtube_url, facebook_url, linkden_url, twitter_url } = req.body;
 
   try {
+    console.log('Received data:', req.body);
+    console.log('File info:', req.file);
+    
     const qrdata = new Data({
       name,
       email,
-      work_email, // Added work_email
-      organization, // Added organization
+      work_email,
+      organization,
       phone,
       address,
       youtube_url,
@@ -55,7 +58,7 @@ router.post('/qrdata', upload.single('profileImage'), async (req, res) => {
       userId: qrdata._id
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error while submitting:', error);
     res.status(500).json({ message: 'Error while submitting', error: error.message });
   }
 });
