@@ -8,22 +8,12 @@ require('dotenv').config();
 const app = express();
 
 
-// Enable CORS with the specific origin allowed
-app.use(cors());
 
-// OR to restrict CORS to specific origins (replace with your frontend URL)
-const allowedOrigins = ['http://localhost:3000','https://qr-frontend-beta.vercel.app'];
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,  // Allow credentials like cookies or authorization headers
+  origin: 'https://qr-frontend-beta.vercel.app', // Specify the allowed origin
+  methods: ['GET', 'POST'],                      // Specify allowed methods if necessary
+  credentials: true                              // If using cookies, enable credentials
 }));
-
 
 // Middleware for parsing JSON requests
 app.use(express.json());
