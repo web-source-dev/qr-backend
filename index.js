@@ -10,21 +10,11 @@ const app = express();
 
 // Configure CORS options
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests from specified origin and no-origin (like mobile apps or Postman)
-    const allowedOrigins = ["https://qr-frontend-beta.vercel.app"];
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all HTTP methods you need
-  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
-  credentials: true, // Enable credentials if necessary
+  origin: 'https://qr-frontend-beta.vercel.app', // Allow frontend URL
+  methods: ['GET', 'POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type'],
 };
 
-// Apply CORS middleware with updated options
 app.use(cors(corsOptions));
 
 // Middleware for parsing JSON requests
