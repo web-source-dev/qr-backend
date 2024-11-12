@@ -10,9 +10,8 @@ const app = express();
 
 
 app.use(cors({
-  origin: 'https://qr-frontend-beta.vercel.app', // Specify the allowed origin
-  methods: ['GET', 'POST'],                      // Specify allowed methods if necessary
-  credentials: true                              // If using cookies, enable credentials
+  origin: 'https://qr-frontend-beta.vercel.app', // Allow specific frontend origin
+  methods: ['GET', 'POST','PUT'],                       // Allow only specific HTTP methods
 }));
 
 // Middleware for parsing JSON requests
