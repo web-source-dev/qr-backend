@@ -12,7 +12,7 @@ const app = express();
 app.use(bodyParser.json())
 // Middleware
 app.use(express.json());  // Parse incoming JSON requests
-const allowedOrigins = ["https://qr-frontend-beta.vercel.app", "https://your-other-frontend.com"];
+const allowedOrigins = ["https://qr-frontend-beta.vercel.app"];
 
 // Configure CORS options dynamically
 const corsOptions = {
