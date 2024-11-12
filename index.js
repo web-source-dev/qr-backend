@@ -9,9 +9,11 @@ const app = express();
 
 
 
+const allowedOrigins = ['https://qr-frontend-beta.vercel.app/']; // Add your frontend URL here
 app.use(cors({
-  origin: 'https://qr-frontend-beta.vercel.app', // Allow specific frontend origin
-  methods: ['GET', 'POST','PUT'],                       // Allow only specific HTTP methods
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware for parsing JSON requests
