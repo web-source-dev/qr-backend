@@ -12,12 +12,25 @@ const app = express();
 app.use(bodyParser.json())
 // Middleware
 app.use(express.json());  // Parse incoming JSON requests
+const allowedOrigins = ["https://qr-frontend-beta.vercel.app", "https://your-other-frontend.com"];
+
+// Configure CORS options dynamically
 const corsOptions = {
-  origin: 'https://qr-frontend-beta.vercel.app/', // Ensure this matches the exact URL
+  origin: (origin, callback) => {
+    // Check if the incoming origin is in the allowedOrigins array
+    if (allowedOrigins.includes(origin)) {
+      callback(null, origin);  // Allow the origin
+    } else {
+      callback(new Error('Not allowed by CORS'));  // Reject other origins
+    }
+  },
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
+
+// Use CORS middleware with the dynamic options
 app.use(cors(corsOptions));
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
