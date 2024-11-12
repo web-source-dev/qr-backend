@@ -8,25 +8,23 @@ require('dotenv').config();
 // Initialize app
 const app = express();
 
-// Allowed origins for CORS
-const allowedOrigins = ["https://qr-frontend-beta.vercel.app"];
-
-// Configure CORS options dynamically
+// Configure CORS options
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or Postman)
+    // Allow requests from specified origin and no-origin (like mobile apps or Postman)
+    const allowedOrigins = ["https://qr-frontend-beta.vercel.app"];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,  // Allow credentials if needed
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all HTTP methods you need
+  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
+  credentials: true, // Enable credentials if necessary
 };
 
-// Apply CORS middleware with the configured options
+// Apply CORS middleware with updated options
 app.use(cors(corsOptions));
 
 // Middleware for parsing JSON requests
