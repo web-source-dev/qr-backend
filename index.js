@@ -1,42 +1,41 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bodyParser = require('body-parser')
-
-require('dotenv').config();
+const bodyParser = require('body-parser');
 const path = require('path');
+require('dotenv').config();
 
 // Initialize app
 const app = express();
 
-app.use(bodyParser.json())
-// Middleware
-app.use(express.json());  // Parse incoming JSON requests
+// Allowed origins for CORS
 const allowedOrigins = ["https://qr-frontend-beta.vercel.app"];
 
 // Configure CORS options dynamically
 const corsOptions = {
   origin: (origin, callback) => {
-    // Check if the incoming origin is in the allowedOrigins array
-    if (allowedOrigins.includes(origin)) {
-      callback(null, origin);  // Allow the origin
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));  // Reject other origins
+      callback(new Error('Not allowed by CORS'));
     }
   },
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,  // Allow credentials if needed
 };
 
-// Use CORS middleware with the dynamic options
+// Apply CORS middleware with the configured options
 app.use(cors(corsOptions));
 
+// Middleware for parsing JSON requests
+app.use(express.json());
+app.use(bodyParser.json());
+
+// Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-
-console.log(path.join(__dirname, 'uploads'));  // Log the full path to the uploads directory
-
-
+console.log('Serving static files from:', path.join(__dirname, 'uploads'));
 
 // MongoDB Connection using Mongoose
 const connectDB = async () => {
@@ -54,17 +53,19 @@ const connectDB = async () => {
   }
 };
 
-// Connect to DB
+// Connect to MongoDB
 connectDB();
 
-// Routes
+// Import and use routes
 const userRoutes = require('./Routes/userroute');
 app.use('/api', userRoutes);
 
-app.get('/',(req, res) => {
+// Root route
+app.get('/', (req, res) => {
   res.send('Welcome to the QR Code API!');
-})
-// Set up port
+});
+
+// Set up server port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
