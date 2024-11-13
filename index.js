@@ -8,27 +8,19 @@ require('dotenv').config();
 const app = express();
 
 
-
-const allowedOrigins = ['https://qr-frontend-beta.vercel.app'];
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'multipart/form-data']
-}));
-
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, multipart/form-data');
+  const origin = req.headers.origin;
+  const allowedOrigins = ['https://qr-frontend-tan.vercel.app'];
+  if (allowedOrigins.includes(origin) || !origin) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, multipart/form-data');
+  } else {
+    res.status(403).send('Not allowed by CORS');
+    return;
+  }
   next();
 });
-
 // Middleware for parsing JSON requests
 app.use(express.json());
 
