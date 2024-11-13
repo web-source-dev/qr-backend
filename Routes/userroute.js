@@ -1,27 +1,45 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const Data = require('../models/data');  // Assuming this model is for QR code data
+const Data = require('../models/data');
+const helmet = require('helmet');
 const router = express.Router();
 
-// Set up multer storage configuration
+// Use helmet for security
+router.use(helmet());
+
+// Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');  // Make sure this directory exists on the server
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));  // Use timestamp as filename
-  }
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
 });
 
-const upload = multer({ storage: storage });
+// Only allow image file types
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const fileTypes = /jpeg|jpg|png|gif/;
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
 
-// POST route for storing QR data and image upload
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images are allowed'));
+    }
+  },
+});
+
+// POST route to store QR data and image upload
 router.post('/qrdata', upload.single('profileImage'), async (req, res) => {
-  const { name, email, work_email, organization, phone, address, youtube_url, facebook_url, linkden_url, twitter_url } = req.body;
-  const profileImage = req.file ? req.file.path : null;  // Save file path to DB
-
   try {
+    const { name, email, work_email, organization, phone, address, youtube_url, facebook_url, linkden_url, twitter_url } = req.body;
+    const profileImage = req.file ? req.file.path : null;
+
     const qrdata = new Data({
       name,
       email,
@@ -33,14 +51,14 @@ router.post('/qrdata', upload.single('profileImage'), async (req, res) => {
       facebook_url,
       linkden_url,
       twitter_url,
-      profileImage,  // Save the uploaded image path
+      profileImage,
     });
 
     await qrdata.save();
 
     res.status(201).json({
       message: 'Submitted successfully',
-      qrdata: qrdata,
+      qrdata,
       userId: qrdata._id,
     });
   } catch (error) {
@@ -51,15 +69,14 @@ router.post('/qrdata', upload.single('profileImage'), async (req, res) => {
 
 router.get('/users', async (req, res) => {
   try {
-    const users = await Data.find(); // Fetch all users from the database
-    res.status(200).json(users); // Send the users as a JSON response
+    const users = await Data.find();
+    res.status(200).json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Error fetching users', error: error.message });
   }
 });
 
-// Update isAllowed field in user
 router.put('/users/:id', async (req, res) => {
   try {
     const { isAllowed } = req.body;
@@ -77,21 +94,18 @@ router.put('/users/:id', async (req, res) => {
 
 router.get('/users/:userId', async (req, res) => {
   try {
-    const user = await Data.findById(req.params.userId);  // Find user by ID
+    const user = await Data.findById(req.params.userId);
     if (!user) return res.status(404).send('User not found');
 
-    // Check if the user is allowed
     if (!user.isAllowed) {
-      return res.status(403).json({ message: 'User is blocked' });  // Send 'blocked' message
+      return res.status(403).json({ message: 'User is blocked' });
     }
 
-    // If the user is allowed, send user details
     res.json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).send('Server error');
   }
 });
-
 
 module.exports = router;
