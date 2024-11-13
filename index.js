@@ -1,53 +1,60 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
 const path = require('path');
 require('dotenv').config();
 
-// Initialize app
 const app = express();
 
+// Middleware: Security Headers
+app.use(helmet());
 
+// Middleware: CORS configuration
+const allowedOrigins = ['https://qr-frontend-tan.vercel.app'];
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = ['https://qr-frontend-tan.vercel.app'];
   if (allowedOrigins.includes(origin) || !origin) {
     res.header('Access-Control-Allow-Origin', origin || '*');
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, multipart/form-data');
+    next();
   } else {
     res.status(403).send('Not allowed by CORS');
-    return;
   }
-  next();
 });
-// Middleware for parsing JSON requests
-app.use(express.json());
 
-// Serve static files from the 'uploads' directory
+// Middleware for parsing JSON and serving static files
+app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 console.log('Serving static files from:', path.join(__dirname, 'uploads'));
 
 // MongoDB Connection using Mongoose
 const connectDB = async () => {
   try {
+    if (!process.env.MONGO_URI) {
+      throw new Error("MongoDB URI not provided in .env");
+    }
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000, // 30 seconds
-      socketTimeoutMS: 45000, // 45 seconds
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
     });
     console.log('MongoDB connected with Mongoose...');
-  } catch (err) {
-    console.error('MongoDB connection error:', err.message);
+  } catch (error) {
+    console.error('MongoDB connection error:', error.message);
     process.exit(1);
   }
 };
 
-// Connect to MongoDB
-connectDB();
+// Initialize database connection
+connectDB().catch(error => console.error("Error initializing database:", error));
 
-// Import and use routes
+// Middleware to handle async errors for routes
+const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+
+// Import routes
 const userRoutes = require('./Routes/userroute');
 app.use('/api', userRoutes);
 
@@ -56,7 +63,13 @@ app.get('/', (req, res) => {
   res.send('Welcome to the QR Code API!');
 });
 
-// Set up server port
+// Global Error Handler for improved error messages
+app.use((err, req, res, next) => {
+  console.error('An error occurred:', err.message);
+  res.status(500).json({ message: 'Server Error', error: err.message });
+});
+
+// Port setup and server start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
