@@ -2,11 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const Data = require('../models/data');
-const helmet = require('helmet');
 const router = express.Router();
 
-// Use helmet for security
-router.use(helmet());
 
 // Multer storage configuration
 const storage = multer.diskStorage({
