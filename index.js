@@ -12,17 +12,17 @@ app.use(helmet());
 
 // Middleware: CORS configuration
 const allowedOrigins = ['https://qr-frontend-tan.vercel.app'];
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin) || !origin) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, multipart/form-data');
-    next();
-  } else {
-    res.status(403).send('Not allowed by CORS');
-  }
-});
+app.use(cors({
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Middleware for parsing JSON and serving static files
 app.use(express.json());
