@@ -1,14 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const helmet = require('helmet');
 const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
 // Middleware: Security Headers
-app.use(helmet());
 
 // Middleware: CORS configuration
 const allowedOrigins = ['https://qr-frontend-tan.vercel.app'];
@@ -52,7 +50,6 @@ const connectDB = async () => {
 connectDB().catch(error => console.error("Error initializing database:", error));
 
 // Middleware to handle async errors for routes
-const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 // Import routes
 const userRoutes = require('./Routes/userroute');
@@ -63,11 +60,6 @@ app.get('/', (req, res) => {
   res.send('Welcome to the QR Code API!');
 });
 
-// Global Error Handler for improved error messages
-app.use((err, req, res, next) => {
-  console.error('An error occurred:', err.message);
-  res.status(500).json({ message: 'Server Error', error: err.message });
-});
 
 // Port setup and server start
 const PORT = process.env.PORT || 5000;
