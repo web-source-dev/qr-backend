@@ -24,8 +24,6 @@ app.use(cors({
 
 // Middleware for parsing JSON and serving static files
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-console.log('Serving static files from:', path.join(__dirname, 'uploads'));
 
 // MongoDB Connection using Mongoose
 const connectDB = async () => {
